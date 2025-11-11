@@ -1,0 +1,89 @@
+import java.util.*;
+
+class Node {
+    char ch;
+    int freq;
+    Node left, right;
+
+    Node(char ch, int freq) {
+        this.ch = ch;
+        this.freq = freq;
+        this.left = null;
+        this.right = null;
+    }
+}
+
+class CompareNode implements Comparator<Node> {
+    public int compare(Node a, Node b) {
+        return a.freq - b.freq; // Min-heap (based on frequency)
+    }
+}
+
+public class HuffmanCoding {
+
+    // Recursive function to generate Huffman Codes
+    public static void generateCodes(Node root, String code, Map<Character, String> huffmanCode) {
+        if (root == null)
+            return;
+
+        // Leaf node contains character
+        if (root.left == null && root.right == null) {
+            huffmanCode.put(root.ch, code);
+        }
+
+        generateCodes(root.left, code + "0", huffmanCode);
+        generateCodes(root.right, code + "1", huffmanCode);
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter the string to encode: ");
+        String text = sc.nextLine();
+
+        // Step 1: Count frequency of each character
+        Map<Character, Integer> freq = new HashMap<>();
+        for (char ch : text.toCharArray()) {
+            freq.put(ch, freq.getOrDefault(ch, 0) + 1);
+        }
+
+        // Step 2: Create a priority queue (min-heap)
+        PriorityQueue<Node> pq = new PriorityQueue<>(new CompareNode());
+        for (Map.Entry<Character, Integer> entry : freq.entrySet()) {
+            pq.add(new Node(entry.getKey(), entry.getValue()));
+        }
+
+        // Step 3: Build Huffman Tree
+        while (pq.size() > 1) {
+            Node left = pq.poll();
+            Node right = pq.poll();
+
+            Node newNode = new Node('\0', left.freq + right.freq);
+            newNode.left = left;
+            newNode.right = right;
+            pq.add(newNode);
+        }
+
+        Node root = pq.peek();
+
+        // Step 4: Generate Huffman Codes
+        Map<Character, String> huffmanCode = new HashMap<>();
+        generateCodes(root, "", huffmanCode);
+
+        // Step 5: Print Huffman Codes
+        System.out.println("\nHuffman Codes:");
+        for (Map.Entry<Character, String> entry : huffmanCode.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
+
+        // Step 6: Encode input string
+        StringBuilder encoded = new StringBuilder();
+        for (char ch : text.toCharArray()) {
+            encoded.append(huffmanCode.get(ch));
+        }
+
+        System.out.println("\nEncoded String:");
+        System.out.println(encoded.toString());
+
+        sc.close();
+    }
+}
