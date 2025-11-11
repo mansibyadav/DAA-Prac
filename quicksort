@@ -1,0 +1,85 @@
+import java.util.*;
+
+public class quicksort {
+
+    static long detSteps = 0, randSteps = 0;
+
+    // Partition function for deterministic quicksort
+    static int partition(int[] arr, int low, int high, boolean isRandom) {
+        int pivot = arr[high];
+        int i = low - 1;
+        long[] steps = isRandom ? new long[]{randSteps} : new long[]{detSteps};
+
+        for (int j = low; j < high; j++) {
+            if (isRandom) randSteps++;
+            else detSteps++;
+            if (arr[j] <= pivot) {
+                i++;
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+        }
+
+        int temp = arr[i + 1];
+        arr[i + 1] = arr[high];
+        arr[high] = temp;
+
+        return i + 1;
+    }
+
+    // Random partition for randomized quicksort
+    static int randomPartition(int[] arr, int low, int high) {
+        int randIndex = low + (int) (Math.random() * (high - low + 1));
+        int temp = arr[randIndex];
+        arr[randIndex] = arr[high];
+        arr[high] = temp;
+        return partition(arr, low, high, true);
+    }
+
+    // Deterministic QuickSort
+    static void quickSortDet(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = partition(arr, low, high, false);
+            quickSortDet(arr, low, pi - 1);
+            quickSortDet(arr, pi + 1, high);
+        }
+    }
+
+    // Randomized QuickSort
+    static void quickSortRand(int[] arr, int low, int high) {
+        if (low < high) {
+            int pi = randomPartition(arr, low, high);
+            quickSortRand(arr, low, pi - 1);
+            quickSortRand(arr, pi + 1, high);
+        }
+    }
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter number of elements: ");
+        int n = sc.nextInt();
+
+        int[] arr1 = new int[n];
+        int[] arr2 = new int[n];
+
+        System.out.print("Enter elements: ");
+        for (int i = 0; i < n; i++) {
+            arr1[i] = sc.nextInt();
+            arr2[i] = arr1[i];
+        }
+
+        quickSortDet(arr1, 0, n - 1);
+        quickSortRand(arr2, 0, n - 1);
+
+        System.out.println("\nDeterministic QuickSort:");
+        for (int x : arr1)
+            System.out.print(x + " ");
+        System.out.println("\nSteps (approx comparisons): " + detSteps);
+
+        System.out.println("\n\nRandomized QuickSort:");
+        for (int x : arr2)
+            System.out.print(x + " ");
+        System.out.println("\nSteps (approx comparisons): " + randSteps);
+    }
+}
